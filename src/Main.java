@@ -1,5 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -7,8 +9,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.TreeMap;
 //TODO write notes on the tree map sorting stuff so i understand it better
-//TODO read in random words list for performance test
-//TODO write performance test
+//TODO write notes on performance and time complexity differences between the three methods
+//TODO figure out what to do with the results from performance test, too big for excel
 //TODO add leucine version of index methods
 
 public class Main {
@@ -49,7 +51,7 @@ public class Main {
             //split line on whitespace
             Matcher matcher = pattern.matcher(line);
             if(matcher.find()){
-                System.out.println("I found a match on line " + lineNum);
+
                 results++;
             }
 
@@ -81,7 +83,7 @@ public class Main {
         Scanner scanner = new Scanner(file);
         ArrayList<String> fileWords = new ArrayList<>();
 
-        int results = 0;
+
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
 
@@ -91,7 +93,7 @@ public class Main {
             Collections.addAll(fileWords, strLine);
 
             }
-        results = Collections.frequency(fileWords, target);
+        int results = Collections.frequency(fileWords, target);
         scanner.close();
 
 
@@ -106,25 +108,14 @@ public class Main {
         return result;
     }
 
-   public static Long getMean(ArrayList<Long> values){
 
-        Long sum = Long.valueOf(0);
-        for(Long x : values){
-            sum = sum + x;
-
-        }
-       Long mean = sum / values.size();
-       return mean;
-
-
-   }
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         //enter p_test and 1, 2 or 3 as arguments to run performance test, else it will run normally
         String [] filenames = {"french_armed_forces.txt", "hitchhikers.txt", "warp_drive.txt"};
         if(args.length > 0){
             if(args[0].equalsIgnoreCase("p_test")){
                 System.out.println("Performance test...\n");
-                int max = 2000000;
+                int max = 1000000;
                 ArrayList<String> randomwords = getRandomWords();
                 HashMap<String, ArrayList<Long>> results = new HashMap<>();
                 ArrayList<Long> stringsearchtimes = new ArrayList<>();
@@ -203,11 +194,25 @@ public class Main {
 
                 }
                 results.put("Index", indexsearchtimes);
+                FileWriter f0 = new FileWriter("outputstring.txt");
+                for(Long f : stringsearchtimes){
+                    f0.write(String.valueOf(f) + "\n");
 
-                for(String key : results.keySet()){
-                    ArrayList<Long> vals = results.get(key);
-                    System.out.println("Search Type: " + key + " , Mean duration: " + getMean(vals));
                 }
+                f0.close();
+                FileWriter f1 = new FileWriter("outputregex.txt");
+                for(Long g : regexsearchtimes){
+                    f1.write(String.valueOf(g) + "\n");
+
+                }
+                f1.close();
+                FileWriter f2 = new FileWriter("outputindex.txt");
+                for(Long h : indexsearchtimes){
+                    f2.write(String.valueOf(h) + "\n");
+                }
+                f2.close();
+
+
 
 
 
