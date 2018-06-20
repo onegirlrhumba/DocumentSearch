@@ -8,10 +8,8 @@ import java.util.regex.Pattern;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.TreeMap;
-//TODO write notes on the tree map sorting stuff so i understand it better
-//TODO write notes on performance and time complexity differences between the three methods
-//TODO figure out what to do with the results from performance test, too big for excel
-//TODO add leucine version of index methods
+
+
 
 public class Main {
 
@@ -27,7 +25,7 @@ public class Main {
             String [] strLine = line.split("\\s+");
             //iterate through line's string array
             for(int i = 0;i<strLine.length;i++){
-                if(strLine[i].equalsIgnoreCase(token)){
+                if(strLine[i].equals(token)){
                     results++;
 
                 }
@@ -78,6 +76,26 @@ public class Main {
         return randomwords;
 
     }
+    public static ArrayList<String> createIndex(String filename) throws FileNotFoundException{
+        ArrayList<String> fileWords = new ArrayList<>();
+        File file = new File("/Users/kruge/Downloads/sample_text/sample_text/" + filename);
+        Scanner scanner = new Scanner(file);
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+
+            //split line on whitespace
+            String [] strLine = line.split("\\s+");
+            //add all words from line to master list
+            Collections.addAll(fileWords, strLine);
+
+        }
+        scanner.close();
+        return fileWords;
+    }
+    public static int searchStaticIndex(String token, ArrayList<String> fileWords){
+        return Collections.frequency(fileWords, token);
+
+    }
     public static int searchIndex(String target, String filename) throws FileNotFoundException {
         File file = new File("/Users/kruge/Downloads/sample_text/sample_text/" + filename);
         Scanner scanner = new Scanner(file);
@@ -99,6 +117,23 @@ public class Main {
 
         return results;
     }
+    public static Double getMean(ArrayList<Long> values){
+        Double sum = 0.00;
+        Double mean = 0.00;
+        for(Long x : values){
+            sum = sum + x;
+
+        }
+        mean = sum / values.size();
+        return mean;
+    }
+    public static Long getMax(ArrayList<Long> values){
+        return Collections.max(values);
+    }
+    public static Long getMin(ArrayList<Long> values){
+        return Collections.min(values);
+    }
+
     public static TreeMap<String, Integer> sortMapByValue(HashMap<String, Integer> map){
         Comparator<String> comparator = new ValueComparator(map);
         //TreeMap is a map sorted by its keys.
@@ -115,12 +150,13 @@ public class Main {
         if(args.length > 0){
             if(args[0].equalsIgnoreCase("p_test")){
                 System.out.println("Performance test...\n");
-                int max = 1000000;
+                int max = 2000000;
                 ArrayList<String> randomwords = getRandomWords();
                 HashMap<String, ArrayList<Long>> results = new HashMap<>();
                 ArrayList<Long> stringsearchtimes = new ArrayList<>();
                 ArrayList<Long> regexsearchtimes = new ArrayList<>();
                 ArrayList<Long> indexsearchtimes = new ArrayList<>();
+                ArrayList<Long> staticindexsearchtimes = new ArrayList<>();
 
                 Random random = new Random();
                 for(int i = 0;i<max;i++){
@@ -194,6 +230,38 @@ public class Main {
 
                 }
                 results.put("Index", indexsearchtimes);
+
+
+                HashMap<String, ArrayList<String>> fileWordsMap = new HashMap<>();
+                for(String filename : filenames){
+                    ArrayList<String> filewords = createIndex(filename);
+                    fileWordsMap.put(filename, filewords);
+                }
+
+                for(int i = 0;i<max;i++){
+                    System.out.print("\r Running performance test using Static Indexed search, search " + i + " of " + max);
+                    String word = randomwords.get(random.nextInt(randomwords.size()));
+                    long startTime = System.currentTimeMillis();
+                    for(String filename : fileWordsMap.keySet()){
+
+
+                            int staticresults = searchStaticIndex(word, fileWordsMap.get(filename));
+
+
+
+
+
+
+
+
+                    }
+                    long stopTime = System.currentTimeMillis();
+                    long duration = stopTime - startTime;
+                    staticindexsearchtimes.add(duration);
+
+                }
+                results.put("Static", staticindexsearchtimes);
+
                 FileWriter f0 = new FileWriter("outputstring.txt");
                 for(Long f : stringsearchtimes){
                     f0.write(String.valueOf(f) + "\n");
@@ -211,6 +279,20 @@ public class Main {
                     f2.write(String.valueOf(h) + "\n");
                 }
                 f2.close();
+                FileWriter f3 = new FileWriter("outputstatic.txt");
+                for(Long j : staticindexsearchtimes){
+                    f3.write(String.valueOf(j) + "\n");
+
+                }
+                f3.close();
+
+                System.out.println("Performance test finished. Mean durations: \n");
+                System.out.println("String match: " + getMean(stringsearchtimes) + " , Min: " + getMin(stringsearchtimes) + " , Max: " + getMax(stringsearchtimes));
+                System.out.println("Regex match: " + getMean(regexsearchtimes) + " , Min: " + getMin(regexsearchtimes) + " , Max: " + getMax(regexsearchtimes));
+                System.out.println("Index search: " + getMean(indexsearchtimes) + " , Min: " + getMin(indexsearchtimes) + " , Max: " + getMax(indexsearchtimes));
+                System.out.println("Static Index search: " + getMean(staticindexsearchtimes) + " , Min: " + getMin(staticindexsearchtimes) + " , Max: " + getMax(staticindexsearchtimes));
+                System.exit(0);
+
 
 
 

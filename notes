@@ -1,0 +1,15 @@
+Notes
+---
+
+Program can be run with the argument "p_test" to run it in performance testing mode.
+This test reads in a file of random words and uses a selection at random to test each of the three methods (String match, Regex Match and Index)
+2 million times and records the duration of each search in milliseconds. It then saves the list of durations to three separate files for
+further analysis and prints out the min, max and mean for each of the three tests. Note that the index search method indexes the text files into
+ArrayLists every time the method is called. I have added a Static Index search method that reads all three files into ArrayLists stored in memory prior to
+running any searches to the performance test to see if that is faster.
+
+I found that the Regex method was the slowest, while the String and Index methods appeared to be about the same; likely because they rely on the same
+String.equals() methods for comparison. Indexing the files once and then running searches on them in memory is significantly faster.
+
+
+
