@@ -87,6 +87,7 @@ public class Main {
         return randomwords;
 
     }
+    //this method creates an arraylist of all the words in a file
     public static ArrayList<String> createIndex(String filename) throws FileNotFoundException{
         ArrayList<String> fileWords = new ArrayList<>();
         File file = new File("/Users/kruge/Downloads/sample_text/sample_text/" + filename);
@@ -103,10 +104,14 @@ public class Main {
         scanner.close();
         return fileWords;
     }
+    //this method searches a given arraylist for the token
     public static int searchStaticIndex(String token, ArrayList<String> fileWords){
         return Collections.frequency(fileWords, token);
 
     }
+
+
+    //this method creates an arraylist of all words in a given file then searches the list for the token
     public static int searchIndex(String target, String filename) throws FileNotFoundException {
         File file = new File("/Users/kruge/Downloads/sample_text/sample_text/" + filename);
         Scanner scanner = new Scanner(file);
@@ -161,7 +166,7 @@ public class Main {
         if(args.length > 0){
             if(args[0].equalsIgnoreCase("p_test")){
                 System.out.println("Performance test...\n");
-                int max = 2000000;
+                int max = 200000;
                 ArrayList<String> randomwords = getRandomWords();
                 HashMap<String, ArrayList<Long>> results = new HashMap<>();
                 ArrayList<Long> stringsearchtimes = new ArrayList<>();
@@ -297,7 +302,7 @@ public class Main {
                 }
                 f3.close();
 
-                System.out.println("Performance test finished. Mean durations: \n");
+                System.out.println("\n Performance test finished. Mean durations: \n");
                 System.out.println("String match: " + getMean(stringsearchtimes) + " , Min: " + getMin(stringsearchtimes) + " , Max: " + getMax(stringsearchtimes));
                 System.out.println("Regex match: " + getMean(regexsearchtimes) + " , Min: " + getMin(regexsearchtimes) + " , Max: " + getMax(regexsearchtimes));
                 System.out.println("Index search: " + getMean(indexsearchtimes) + " , Min: " + getMin(indexsearchtimes) + " , Max: " + getMax(indexsearchtimes));
@@ -319,10 +324,16 @@ public class Main {
                 System.exit(0);
             }
         }
+        HashMap<String, ArrayList<String>> fileWordsMap = new HashMap<>();
+        //here is where i pre-process the files for the static index search method
+        for(String filename : filenames){
+            ArrayList<String> filewords = createIndex(filename);
+            fileWordsMap.put(filename, filewords);
+        }
         System.out.println("Please enter search term: ");
         Scanner scanner = new Scanner(System.in);
         String searchterm = scanner.nextLine();
-        System.out.println("Please select a search method: 1) String Match 2) Regular Expression 3) Indexed ");
+        System.out.println("Please select a search method: 1) String Match 2) Regular Expression 3) Indexed at Search Time 4) Indexed Prior to Search");
         int searchmethod = scanner.nextInt();
         HashMap<String, Integer> searchResults = new HashMap<>();
         long startTime = System.currentTimeMillis();
@@ -361,6 +372,16 @@ public class Main {
                     }
                 }
                 break;
+            case 4:
+
+                for(String filename : fileWordsMap.keySet()){
+
+                    int result = searchStaticIndex(searchterm, fileWordsMap.get(filename));
+                    searchResults.put(filename, result);
+
+                }
+                break;
+
 
         }
 
