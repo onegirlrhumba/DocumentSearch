@@ -49,9 +49,20 @@ public class Main {
             //split line on whitespace
             Matcher matcher = pattern.matcher(line);
             if(matcher.find()){
-
+                int len = line.length();
+                int end = matcher.end();
                 results++;
+                while(end < len){
+
+                if(matcher.find(end)){
+                    end = matcher.end();
+                    results ++;
+                }
+                else{
+                    break;
+                }}
             }
+
 
             }
 
@@ -331,7 +342,7 @@ public class Main {
             case 2:
                 for(String filename : filenames){
                     try{
-                        int result = searchIndex(searchterm, filename);
+                        int result = searchRegex(searchterm, filename);
                         searchResults.put(filename, result);
                     }catch(FileNotFoundException ex){
                         System.out.println("File " + filename + " not found");
